@@ -22,12 +22,17 @@ fetch_pokemon() {
 # Remove old error log if exists
 > errors.txt
 
-# Fetch all Pokémon in parallel
+# Fetch all Pokémon in parallel and store PIDs
 for POKEMON in "${POKEMONS[@]}"; do
-    fetch_pokemon "$POKEMON" &  # run in background
+    fetch_pokemon "$POKEMON" &
 done
 
-# Wait for all background processes to finish
+# Show current background jobs
+jobs
+
+# kill %1 %2 %3
+
+# Wait for all jobs to finish
 wait
 
 echo "✅ All Pokémon data fetched!"
