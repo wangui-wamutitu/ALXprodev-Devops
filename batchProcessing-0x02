@@ -1,0 +1,36 @@
+#!/bin/bash
+
+POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon" "InvalidName")
+BASE_URL="https://pokeapi.co/api/v2/pokemon/"
+
+for POKEMON in "${POKEMONS[@]}"; do
+    LOWER_NAME=$(echo "$POKEMON" | tr '[:upper:]' '[:lower:]')
+    FILE="${LOWER_NAME}.json"
+    ATTEMPT=1
+    SUCCESS=false
+
+    echo "Fetching data for $POKEMON..."
+
+    # Retry loop (up to 3 times)
+    while [ $ATTEMPT -le 3 ]; do
+        STATUS=$(curl -s -o "$FILE" -w "%{http_code}" "${BASE_URL}${LOWER_NAME}")
+        
+        if [ "$STATUS" -eq 200 ]; then
+            echo "✅ Saved data to $FILE"
+            SUCCESS=true
+            break
+        else
+            echo "⚠️  Attempt $ATTEMPT failed for $POKEMON (Status: $STATUS)"
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 2 # delay before retry
+        fi
+    done
+
+    # If all retries failed
+    if [ "$SUCCESS" = false ]; then
+        echo "❌ Error: Failed to fetch data for $POKEMON after 3 attempts" >> errors.txt
+        rm -f "$FILE" # remove partial file
+    fi
+
+    sleep 2 # avoid hitting rate limits
+done

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+OUTPUT="pokemon_report.csv"
+
+# Write CSV header
+echo "Name,Height(m),Weight(kg)" > "$OUTPUT"
+
+for FILE in *.json; do
+    # Extract fields with jq
+    name=$(jq -r '.name' "$FILE" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+    height=$(jq '.height' "$FILE") 
+    weight=$(jq '.weight' "$FILE")
+
+    # Convert units: height (m), weight (kg)
+    height_m=$(awk -v h="$height" 'BEGIN {printf "%.1f", h / 10}')
+    weight_kg=$(awk -v w="$weight" 'BEGIN {printf "%.1f", w / 10}')
+
+    # Append to CSV
+    echo "$name,$height_m,$weight_kg" >> "$OUTPUT"
+    
+done
+
+# Calculate averages with awk
+echo "" >> "$OUTPUT"
+
+awk -F, 'NR>1 {sum_h+=$2; sum_w+=$3; count++} 
+END {print "Average Height:", sum_h/count" m"; print "Average Weight:", sum_w/count" kg";}' "$OUTPUT" >> "$OUTPUT"
+
+echo "Report saved to $OUTPUT"
