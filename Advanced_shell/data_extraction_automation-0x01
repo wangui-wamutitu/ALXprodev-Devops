@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Extract data from JSON using jq
-name=$(jq -r '.name' data.json | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-height=$(jq '.height' data.json)
-weight=$(jq '.weight' data.json)
-type=$(jq -r '.types[0].type.name' data.json | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+# Extract and format data using jq, awk, and sed
+name=$(jq -r '.name' data.json | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
+formatted_height=$(jq -r '.height / 10' data.json | sed 's/$//') 
+formatted_weight=$(jq -r '.weight / 10' data.json | sed 's/$//') 
+type=$(jq -r '.types[0].type.name' data.json | awk '{print toupper(substr($0,1,1)) substr($0,2)}' | sed 's/$//')
 
-# Convert height (decimeters to meters) and weight (hectograms to kg)
-height_m=$(awk -v h="$height" 'BEGIN {printf "%.1f", h / 10}')
-weight_kg=$(awk -v w="$weight" 'BEGIN {printf "%.0f", w / 10}')
-
-# Format output
-echo "$name is of type $type, weighs ${weight_kg}kg, and is ${height_m}m tall."
+# Print output in the exact required format
+echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
