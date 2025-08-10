@@ -23,7 +23,10 @@ done
 # Calculate averages with awk
 echo "" >> "$OUTPUT"
 
-awk -F, 'NR>1 {sum_h+=$2; sum_w+=$3; count++} 
-END {print "Average Height:", sum_h/count" m"; print "Average Weight:", sum_w/count" kg";}' "$OUTPUT" >> "$OUTPUT"
+awk -F, 'NR>1 {sum_h+=$2; sum_w+=$3; count++}
+END {
+    print "Average Height:", sum_h/count" m"; print "Average Weight:", sum_w/count" kg";
+}' "$OUTPUT" | sed '/^$/d' >> "$OUTPUT"
+
 
 echo "Report saved to $OUTPUT"
